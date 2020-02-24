@@ -104,4 +104,36 @@ class SDFabric:
             return SDBuilder()
 
 
+class Observer:
+    def update(self):
+        pass
 
+
+class Subject:
+
+    def __init__(self):
+        self.__o = set()
+
+    def add_observer(self, o: Observer):
+        self.__o.add(o)
+
+    def remove_observer(self, o: Observer):
+        self.__o.remove(o) # Вот тут что-то странное с синтаксисом творилось
+
+    def notify(self):
+        for o in self.__o:
+            o.update(self)
+
+
+class Data(Subject):
+        def __init__(self, data):
+            self.__data = data
+
+        @property
+        def read_data(self):
+            return None
+
+        @property
+        def write_data(self):
+            self.notify()
+            return None

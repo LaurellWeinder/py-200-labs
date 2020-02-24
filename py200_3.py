@@ -1,10 +1,10 @@
-from Patterns import *
+from py_200_3Patterns import *
 
 
-class LinkedList:  # обсевер, выхывает стр драйвер, оттуда метод райт
-    # Это все происходит при изменении ноды
-    class Node:
+class LinkedList(Observer):
+    class Node(Subject):
         def __init__(self, data, prev_node=None, next_node=None):
+            super().__init__()
             self.next_node = next_node
             self.prev_node = prev_node
             self.data = data
@@ -20,18 +20,23 @@ class LinkedList:  # обсевер, выхывает стр драйвер, о�
         self.size = 0
         self.head = None
 
-    def insert_in_the_beginning(self, data):  # Я решила отказаться от хвоста. Просто поняла,
-        if self.head is None:                 # что от него нет никакого толка, кроме вставки в конец.
-            self.head = self.Node(data)       # Два вида вставки: перед головой и после определенной ноды.
+    def insert_in_the_beginning(self, data: Subject):
+        if not isinstance(data, Subject):
+            raise TypeError('Data must me inherited from Subject class')
+        data.add_observer(self)                          # Я решила отказаться от хвоста. Просто поняла,
+        if self.head is None:                            # что от него нет никакого толка, кроме вставки в конец.
+            self.head = self.Node(data)                  # Два вида вставки: перед головой и после определенной ноды.
         else:
-            new_node = self.Node(data)
-            new_node.next_node = self.head
-            new_node.prev_node = None
+            new_node = self.Node(data, next_node=self.head)
             new_node.next_node.prev_node = new_node
             self.head = new_node
         self.size += 1
 
-    def append_to_the_end(self, data):  # Добавляем ноду в конец, проходясь циклом по всем
+    def append_to_the_end(self, data: Subject):
+        if not isinstance(data, Subject):
+            raise TypeError('Data must me inherited from Subject class')
+        data.add_observer(self)
+        # Добавляем ноду в конец, проходясь циклом по всем
         new_node = self.Node(data)
         last = self.head
         if self.size == 0:
@@ -44,9 +49,12 @@ class LinkedList:  # обсевер, выхывает стр драйвер, о�
             new_node.prev_node.next_node = new_node
         self.size += 1
 
-    def insert_after_node(self, node, data):
+    def insert_after_node(self, node, data: Subject):
+        if not isinstance(data, Subject):
+            raise TypeError('Data must me inherited from Subject class')
         if self.head is None:
             raise ValueError('List in empty')
+        data.add_observer(self)
         current_node = self.head
         while current_node is not None:
             if current_node.data == node:
@@ -133,12 +141,12 @@ class LinkedList:  # обсевер, выхывает стр драйвер, о�
             i += 1
         return ll_dict
 
-    @staticmethod
-    def load_from_dict(ll_dict):
-        new_ll = LinkedList()
+
+    def load_from_dict(self, ll_dict):  # Если здесь выводить новый список, получается,
+        self.clear_list()               # что драйвер пишет словарь в неизвестный список
         for i in ll_dict.values():
-            new_ll.append_to_the_end(i)
-        return new_ll
+            self.append_to_the_end(i)
+        return self
 
     def read(self):
         self.load_from_dict(self.__structure_driver.read())
@@ -159,6 +167,7 @@ if __name__ == '__main__':
     ll = LinkedList()
     ll.set_structure_driver(driver)
     l2 = ll.read()
-    json_str = {0: 'A', 1: 'B', 2: 'C'}
+    json_str = {"0": "A", "1": "B", "2": "C"}  # json_str работает вот с таким словарем просто отлично.
+    ll.print_list()
 
 
